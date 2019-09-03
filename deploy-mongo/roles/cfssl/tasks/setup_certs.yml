@@ -1,0 +1,57 @@
+---
+- name: "Create cert output dir"
+  file:
+    path: "{{ ocp.cluster.certdir }}"
+    state: directory
+  
+- name: "Create ca-config"
+  template: 
+    src: ca-config.json.j2
+    dest: "{{ ocp.cluster.certdir }}/ca-config.json"
+    mode: '0644'
+ 
+- name: "Create ca-csr request"
+  template: 
+    src: ca-csr.json.j2
+    dest: "{{ ocp.cluster.certdir }}/ca-csr.json"
+    mode: '0644'
+  
+- name: "Generate ca.crt"
+  shell: "cfssl gencert -initca ca-csr.json | cfssljson -bare ca"
+  environment:
+    PATH: "{{ cfssl.bindir | realpath }}" 
+  args:
+    chdir: "{{ ocp.cluster.certdir }}"
+  
+- name: "Create {{ service }}-csr request"
+  template: 
+    src: service-csr.json.j2
+    dest: "{{ ocp.cluster.certdir }}/{{ service }}-csr.json"
+    mode: '0644'
+
+- name: "Create hosts list"
+  set_fact:
+    hosts_list:
+      - localhost
+      - localhost.localdomain
+      - 127.0.0.1
+      - mongo-cluster01.apps.cluster01.clustership.com
+      - mongo-cluster02.apps.cluster02.clustership.com
+      - mongo-cluster03.apps.cluster03.clustership.com
+      - mongodb
+      - mongodb.{{ namespace | default('kubefed-mongo') }}
+      - mongodb.{{ namespace | default('kubefed-mongo') }}.svc.cluster.local
+
+- name: "Generate {{ service }} crt"
+  shell: "cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -hostname={{ hosts_list | join(',') }} -profile={{ ca.profile }} {{ service }}-csr.json | cfssljson -bare {{ service }}"
+  environment:
+    PATH: "{{ cfssl.bindir | realpath }}" 
+  args:
+    chdir: "{{ ocp.cluster.certdir }}"
+  
+  
+- name: "Concatenate mongo pem"
+  shell: "cat {{ service }}-key.pem {{ service }}.pem > {{ service }}-combined.pem"
+  args:
+    chdir: "{{ ocp.cluster.certdir }}"
+

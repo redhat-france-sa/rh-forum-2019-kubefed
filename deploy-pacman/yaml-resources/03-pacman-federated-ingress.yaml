@@ -1,0 +1,19 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedIngress
+metadata:
+  name: pacman
+spec:
+  template:
+    spec:
+      rules:
+      - host: pacman.clustership.com
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: pacman
+              servicePort: 80
+  placement:
+    clusterSelector:
+      matchLabels:
+        cluster: available

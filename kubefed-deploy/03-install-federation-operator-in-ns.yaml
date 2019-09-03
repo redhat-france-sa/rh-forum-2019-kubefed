@@ -1,0 +1,84 @@
+---
+- name: "install k8s operator through ansible module"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    kube:
+      config:
+        path: "zboub"
+    federation:
+      namespace: kubefed-system
+    federated:
+      namespace: kubefed-system
+      operator:
+        install_state: present
+        context: cluster01
+
+  tasks:
+    - name: "Create or delete k8s namespace {{ federation.namespace }}"
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        name: "{{ federation.namespace }}"
+        api_version: v1
+        kind: Namespace
+
+    - name: Create CatalogSourceConfig for federation operator
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        definition:
+          apiVersion: operators.coreos.com/v1
+          kind: CatalogSourceConfig
+          metadata:
+            name: "installed-community-{{ federation.namespace }}"
+            namespace: openshift-marketplace
+          spec:
+            targetNamespace: "{{ federation.namespace }}"
+            packages: kubefed-operator
+      when: federation.operator.install_state == 'present'
+
+    - name: Create OperatorGroup for federation operator
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        definition:
+          apiVersion: operators.coreos.com/v1
+          kind: OperatorGroup
+          metadata:
+            generation: 2
+            namespace: "{{ federation.namespace }}"
+            generateName: "{{ federation.namespace }}-"
+            name: "{{ federation.namespace }}-z6n95"
+          spec:
+            targetNamespaces:
+            - "{{ federation.namespace }}"
+      when: federation.operator.install_state == 'present'
+
+
+    - name: Create Subscription for federation operator
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        definition:
+          apiVersion: operators.coreos.com/v1alpha1
+          kind: Subscription
+          metadata:
+            name: kubefed-operator
+            namespace: "{{ federation.namespace }}"
+            labels:
+              csc-owner-name: "installed-community-{{ federation.namespace }}"
+              csc-owner-namespace: openshift-marketplace
+          spec:
+            channel: alpha
+            installPlanApproval: Automatic
+            name: kubefed-operator
+            source: "installed-community-{{ federation.namespace }}"
+            sourceNamespace: "{{ federation.namespace }}"
+            startingCSV: kubefed-operator.v0.1.0
+      when: federation.operator.install_state == 'present'

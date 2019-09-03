@@ -1,0 +1,14 @@
+---
+federated_cluster_hosts:
+  - cluster01
+  - cluster02
+  - cluster03
+
+ca_pem:  "{{ '~/certs/ca.pem' | expanduser }}"
+mongodb_cert_file:  "{{ '~/certs/mongodb-combined.pem' | expanduser }}"
+mongodb_pem_data: "{{ lookup('file', mongodb_cert_file) | b64encode }}"
+ca_pem_data: "{{ lookup('file', ca_pem) | b64encode }}"
+
+
+mongo_db_external_port: 27017
+mongo_db_internal_port: 27017

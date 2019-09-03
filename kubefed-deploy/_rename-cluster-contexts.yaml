@@ -1,0 +1,56 @@
+---
+- name: rename context
+  block:
+  - name: Show current kubeconfig
+    set_fact:
+      kubeconfig: "{{ '~/' ~ var_demofolder_name ~ '/' ~ cluster2[index].name ~ '/auth/kubeconfig' }}"
+
+  - name: Show current kubeconfig
+    debug:
+      msg: "{{ kubeconfig | expanduser }}"
+
+#
+# With force: no should only copy if dest file does not exists (so only first time).
+#
+  - name: Backup default files (if required)
+    copy:
+      src: "{{ kubeconfig | expanduser }}"
+      dest: "{{ kubeconfig | expanduser }}.default"
+      force: no
+
+  - name: Restore default files
+    copy:
+      src: "{{ kubeconfig | expanduser }}.default"
+      dest: "{{ kubeconfig | expanduser }}"
+      force: yes
+
+  - name: Modify kubeconfig context in files
+    replace:
+      path: "{{ kubeconfig | expanduser }}"
+      regexp: 'admin'
+      replace: "{{ cluster2[index].name }}"
+
+  - name: Check oc status
+    command: "oc status"
+    args:
+      chdir: "{{ '~/bin' | expanduser }}"
+    register: current_context
+    environment:
+      KUBECONFIG: "{{ kubeconfig | expanduser }}"
+
+  - name: Lookup current context
+    command: "oc config current-context"
+    args:
+      chdir: "{{ '~/bin' | expanduser }}"
+    register: current_context
+    ignore_errors: true
+    environment:
+      KUBECONFIG: "{{ kubeconfig | expanduser }}"
+
+  - name: Rename default context in kubeconfig
+    command: "oc config rename-context {{ current_context.stdout }} {{ cluster2[index].name }}"
+    when: current_context.stdout != cluster2[index].name
+    args:
+      chdir: "{{ '~/bin' | expanduser }}"
+    environment:
+      KUBECONFIG: "{{ kubeconfig | expanduser }}"

@@ -1,0 +1,23 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedService
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+spec:
+  template:
+    metadata:
+      labels:
+        name: mongo
+    spec:
+      type: ClusterIP
+      ports:
+        - port: {{ mongo_db_external_port }}
+          targetPort: {{ mongo_db_internal_port }}
+          protocol: TCP
+      selector:
+        name: mongo
+  placement:
+    clusterSelector:
+      matchLabels:
+        cluster: available

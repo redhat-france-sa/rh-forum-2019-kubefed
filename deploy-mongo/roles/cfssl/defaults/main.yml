@@ -1,0 +1,24 @@
+---
+# vars file for cfssl
+
+#
+# service could be mongodb or something else
+#
+service: default
+
+cfssl:
+  version: 1.2.0
+  bindir: "{{ '~/mbin' | expanduser }}"
+
+
+ocp:
+  cluster:
+    certdir: "{{ '~/certs' | expanduser }}"
+
+
+ca:
+  profile: mongofed
+  country_code: FR
+  locality: Paris
+  organizational_unit: RedHat
+  state: N/A

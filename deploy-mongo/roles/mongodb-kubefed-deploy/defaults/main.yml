@@ -1,0 +1,23 @@
+---
+# defaults file for mongodb-federated-deploy
+
+output_config_dir: ./kubefed-configs
+
+kube:
+  config:
+    path: /home/vagrant/tests/kubefed-deploy/cluster-kubeconfig
+
+cluster:
+  domain: clustership.com
+
+federation:
+  namespace: kubefed-system
+
+federated:
+  service: mongo
+  namespace: "federated-mongodb"
+
+kubefed:
+  host:
+    cluster:
+      context: cluster01

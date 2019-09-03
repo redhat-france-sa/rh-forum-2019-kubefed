@@ -1,0 +1,7 @@
+---
+- name: "Create federated MongoDB cluster"
+  hosts: localhost
+  gather_facts: no
+
+  roles:
+    - role: "pacman-kubefed-deploy"

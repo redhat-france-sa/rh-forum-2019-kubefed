@@ -1,0 +1,84 @@
+---
+- name: "Create k8s namespace {{ federated.namespace }}"
+  k8s:
+    kubeconfig: "{{ kube.config.path }}"
+    state: present
+    context: "{{ kubefed.host.cluster.context }}"
+    name: "{{ federated.namespace }}"
+    api_version: v1
+    kind: Namespace
+  tags: deployment
+
+- name: "Check if namespace already federated"
+  command: "oc get ns federated-mongodb -o go-template='{{index .metadata.labels \"kubefed.io/managed\"}}'"
+  register: ns_federated
+  environment:
+    KUBECONFIG: "{{ kube.config.path }}"
+  tags: deployment
+  when: false
+
+- name: "Enable Federated types"
+  command: "kubefedctl federate namespace {{ federated.namespace }} --contents --enable-type --kubefed-namespace {{ federation.namespace }} --host-cluster-context={{ kubefed.host.cluster.context }}"
+  environment:
+    KUBECONFIG: "{{ kube.config.path }}"
+  ignore_errors: true
+  when: "{{ lookup('k8s', kind='Namespace', namespace=federated.namespace, label_selector='kubefed.io/managed=true') != '' }}"
+  tags: deployment
+
+- name: "Apply k8s configs"
+  k8s:
+    kubeconfig: "{{ kube.config.path }}"
+    state: present
+    context: "{{ kubefed.host.cluster.context }}"
+    namespace: "{{ federated.namespace }}"
+    src: "{{ output_config_dir }}/{{ item }}"
+  loop:
+    - 01-mongo-federated-secret.yaml
+    - 02-mongo-federated-service.yaml
+    - 03-mongo-federated-pvc.yaml
+    - 04-mongo-federated-deployment-rs.yaml
+  tags: deployment
+
+
+- name: "Create passthrough routes"
+  k8s:
+    kubeconfig: "{{ kube.config.path }}"
+    state: present
+    context: "{{ item.name }}"
+    namespace: "{{ federated.namespace }}"
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        labels:
+          name: "{{ federated.service }}"
+        name: "{{ federated.service }}"
+        namespace: "{{ federated.namespace }}"
+      spec:
+        host: "{{ federated.service }}-{{ item.name }}.apps.{{ item.name }}.{{ cluster.domain }}"
+        port:
+          targetPort: 27017
+        tls:
+          termination: passthrough
+        to:
+          kind: Service
+          name: "{{ federated.service }}"
+  loop: "{{ cluster2 }}"
+  
+
+- name: Debug mongo pod
+  debug:
+    msg: "{{ lookup('k8s', kind='Pod', namespace=federated.namespace, label_selector='name=' ~ federated.service) | json_query('metadata.name') }}"
+  tags: lastpass
+
+- name: Lookup mongo pod
+  set_fact:
+    pod: "{{ lookup('k8s', kind='Pod', namespace=federated.namespace, label_selector='name=' ~ federated.service) | json_query('metadata.name') }}"
+  until: pod != ''
+  retries: 20
+  delay: 10
+  tags: lastpass
+
+- name: apply primary replicaset label to pod {{ pod }}
+  command: "oc --context={{ kubefed.host.cluster.context }} -n {{ federated.namespace }} label pod {{ pod }} replicaset=primary"
+  tags: lastpass

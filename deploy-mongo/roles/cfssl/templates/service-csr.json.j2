@@ -1,0 +1,16 @@
+{
+  "CN": "Kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "{{ ca.country_code }}",
+      "L": "{{ ca.locality }}",
+      "O": "Kubernetes",
+      "OU": "{{ ca.organizational_unit }}",
+      "ST": "{{ ca.state }}"
+    }
+  ]
+}

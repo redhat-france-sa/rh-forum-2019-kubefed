@@ -1,0 +1,29 @@
+---
+- name: "Create k8s namespace {{ federated.namespace }}"
+  k8s:
+    kubeconfig: "{{ kube.config.path }}"
+    state: present
+    context: "{{ kubefed.host.cluster.context }}"
+    name: "{{ federated.namespace }}"
+    api_version: v1
+    kind: Namespace
+  tags: deployment
+
+- name: "Enable Federated types"
+  command: "kubefedctl federate namespace {{ federated.namespace }} --contents --enable-type --kubefed-namespace {{ federation.namespace }} --host-cluster-context={{ kubefed.host.cluster.context }}"
+  environment:
+    KUBECONFIG: "{{ kube.config.path }}"
+  ignore_errors: true
+  when: lookup('k8s', kind='Namespace', namespace=federated.namespace, label_selector='kubefed.io/managed=true') != ''
+  tags: deployment
+
+- name: "Apply k8s configs"
+  k8s:
+    kubeconfig: "{{ kube.config.path }}"
+    state: present
+    context: "{{ kubefed.host.cluster.context }}"
+    namespace: "{{ federated.namespace }}"
+    src: "{{ item }}"
+  with_fileglob:
+    - "./yaml-resources/*.yaml"
+  tags: deployment

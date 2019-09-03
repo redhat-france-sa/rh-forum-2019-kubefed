@@ -1,0 +1,29 @@
+apiVersion: v1
+items:
+- apiVersion: operators.coreos.com/v1
+  kind: OperatorGroup
+  metadata:
+    annotations:
+      olm.providedAPIs: ClusterPropagatedVersion.v1alpha1.core.kubefed.io,DNSEndpoint.v1alpha1.multiclusterdns.kubefed.io,Domain.v1alpha1.multiclusterdns.kubefed.io,FederatedServiceStatus.v1alpha1.core.kubefed.io,FederatedTypeConfig.v1beta1.core.kubefed.io,IngressDNSRecord.v1alpha1.multiclusterdns.kubefed.io,KubeFed.v1alpha1.operator.kubefed.io,KubeFedCluster.v1beta1.core.kubefed.io,KubeFedConfig.v1beta1.core.kubefed.io,KubeFedWebHook.v1alpha1.operator.kubefed.io,PropagatedVersion.v1alpha1.core.kubefed.io,ReplicaSchedulingPreference.v1alpha1.scheduling.kubefed.io,ServiceDNSRecord.v1alpha1.multiclusterdns.kubefed.io
+    creationTimestamp: "2019-08-29T15:27:50Z"
+    generateName: kubefed-tests-
+    generation: 2
+    name: kubefed-tests-z6n95
+    namespace: kubefed-tests
+    resourceVersion: "139407"
+    selfLink: /apis/operators.coreos.com/v1/namespaces/kubefed-tests/operatorgroups/kubefed-tests-z6n95
+    uid: 8fac0262-ca71-11e9-8c3f-0eff33b75fce
+  spec:
+    serviceAccount:
+      metadata:
+        creationTimestamp: null
+    targetNamespaces:
+    - kubefed-tests
+  status:
+    lastUpdated: "2019-08-29T15:27:50Z"
+    namespaces:
+    - kubefed-tests
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

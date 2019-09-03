@@ -1,0 +1,26 @@
+---
+- name: "Create federated MongoDB cluster"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    federated:
+      namespace: federated-mongodb
+
+  tasks:
+    - name: Lookup k8s values
+      debug:
+        msg: "Ok {{ label }} installed"
+      vars:
+        label: "{{ lookup('k8s', kind='Namespace', namespace=federated.namespace, label_selector='kubefed.io/managed=true') != '' }}"
+#, label_selector='kubefed.io/managed=true') }}"
+    - name: Lookup mongo pod
+      set_fact:
+        pod: "{{ lookup('k8s', kind='Pod', namespace=federated.namespace, label_selector='name=mongo') | json_query('metadata.name') }}"
+      until: pod != ''
+      retries: 10
+      delay: 5
+
+    - name: apply primary replicaset label to pod {{ pod }}
+      command: "oc --context=cluster01 -n {{ federated.namespace }} label pod {{ pod }} replicaset=primary"
+#oc --context=cluster01 -n kubefed-mongo get pod --selector="name=mongo" --output=jsonpath='{.items..metadata.name}'

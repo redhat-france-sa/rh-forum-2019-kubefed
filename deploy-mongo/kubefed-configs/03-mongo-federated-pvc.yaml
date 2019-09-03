@@ -1,0 +1,18 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedPersistentVolumeClaim
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+spec:
+  template:
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+  placement:
+    clusterSelector:
+      matchLabels:
+        cluster: available

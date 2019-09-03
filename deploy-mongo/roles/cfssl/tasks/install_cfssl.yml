@@ -1,0 +1,56 @@
+---
+- name: "Create local binary directory"
+  file:
+    path: "{{ cfssl.bindir }}"
+    state: directory
+
+- name: "Check if cfssl already installed"
+  stat:
+    path: "{{ cfssl.bindir }}/cfssl"
+  register: cfssl_exists
+
+- name: "Check if cfssljson already installed"
+  stat:
+    path: "{{ cfssl.bindir }}/cfssljson"
+  register: cfssljson_exists
+
+- name: "Check cfssl version"
+  shell: "{{ cfssl.bindir }}/cfssl version | awk '/Version: / { print $2 }'"
+  register: cfssl_version_check
+  when: cfssl_exists.stat.exists == True
+  changed_when: False
+  failed_when: False
+
+- name: "Download cfssl {{ cfssl.version }}"
+  get_url:
+    url: "https://pkg.cfssl.org/R{{ cfssl.version | regex_replace('^([0-9])\\.([0-9]*).*', '\\1.\\2') }}/cfssl_linux-amd64"
+    dest: ./
+  when: cfssl_exists.stat.exists == False or cfssl_version_check.stdout_lines[0] is version(cfssl.version|string, '<')
+
+- name: "Download cfssljson {{ cfssl.version }}"
+  get_url:
+    url: "https://pkg.cfssl.org/R{{ cfssl.version | regex_replace('^([0-9])\\.([0-9]*).*', '\\1.\\2') }}/cfssljson_linux-amd64"
+    dest: ./
+  when: cfssljson_exists.stat.exists == False or cfssl_version_check.stdout_lines[0] is version(cfssl.version|string, '<')
+
+- name: "Move cfssl to binary directory"
+  copy:
+    src: cfssl_linux-amd64
+    dest: "{{ cfssl.bindir }}/cfssl"
+    mode: '0755'
+  when: cfssl_exists.stat.exists == False or cfssl_version_check.stdout_lines[0] is version(cfssl.version|string, '<')
+
+- name: "Move cfssljson to binary directory"
+  copy:
+    src: cfssljson_linux-amd64
+    dest: "{{ cfssl.bindir }}/cfssljson"
+    mode: '0755'
+  when: cfssljson_exists.stat.exists == False or cfssl_version_check.stdout_lines[0] is version(cfssl.version|string, '<')
+
+- name: "Remove downloaded binary"
+  file:
+    path: ./{{ item }}
+    state: absent
+  loop:
+    - cfssl_linux-amd64
+    - cfssljson_linux-amd64

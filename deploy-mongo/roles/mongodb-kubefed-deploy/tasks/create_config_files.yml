@@ -1,0 +1,26 @@
+---
+- name: "Create {{ output_config_dir }}"
+  file:
+    path: "{{ output_config_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: "Generate 01-mongo-federated-secret.yaml"
+  template:
+    src: 01-mongo-federated-secret.yaml.j2
+    dest: "{{ output_config_dir }}/01-mongo-federated-secret.yaml"
+
+- name: "Generate 02-mongo-federated-service.yaml.j2"
+  template:
+    src: 02-mongo-federated-service.yaml.j2
+    dest: "{{ output_config_dir }}/02-mongo-federated-service.yaml"
+
+- name: "Generate 03-mongo-federated-pvc.yaml"
+  template:
+    src: 03-mongo-federated-pvc.yaml.j2
+    dest: "{{ output_config_dir }}/03-mongo-federated-pvc.yaml"
+
+- name: "Generate 04-mongo-federated-deployment-rs.yaml"
+  template:
+    src: 04-mongo-federated-deployment-rs.yaml.j2
+    dest: "{{ output_config_dir }}/04-mongo-federated-deployment-rs.yaml"

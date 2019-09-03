@@ -1,0 +1,45 @@
+  748  wget 'https://github.com/kubernetes-sigs/kubefed/releases/download/v0.1.0-rc4/kubefedctl-0.1.0-rc4-linux-amd64.tgz'
+  913  ls ~/bin/kubefedctl 
+  914   ~/bin/kubefedctl 
+  915   ~/bin/kubefedctl version
+ 1015  ~/bin/kubefedctl 
+ 1016  ~/bin/kubefedctl version
+ 1163  curl -Ls https://github.com/kubernetes-sigs/kubefed/releases/download/v0.1.0-rc6/kubefedctl-0.1.0-rc6-linux-amd64.tgz
+ 1166  wget https://github.com/kubernetes-sigs/kubefed/releases/download/v0.1.0-rc6/kubefedctl-0.1.0-rc6-linux-amd64.tgz
+ 1167  tar tvzf kubefedctl-0.1.0-rc6-linux-amd64.tgz 
+ 1168  tar xvzf kubefedctl-0.1.0-rc6-linux-amd64.tgz 
+ 1169  which kubefedctl 
+ 1170  mv kubefedctl ~/mbin/kubefedctl 
+ 1171  kubefedctl version
+ 1176  kubefedctl join cluster01 --cluster-context cluster01 --kubefed-namespace=kubefed-tests -v 2
+ 1177  kubefedctl join cluster01 --cluster-context cluster01 -v 2
+ 1178  kubefedctl 
+ 1179  kubefedctl join --help
+ 1180  kubefedctl join --help | less
+ 1181  kubefedctl join cluster01 --cluster-context cluster01 --kubefed-namespace=openshift-operators -v 2
+ 1401  kubefedctl 
+ 1402  kubefedctl  | less
+ 1403  kubefedctl  version
+ 1404  kubefedctl join
+ 1408  kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --kubefed-namespace=kube-federation-system
+ 1409  kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --kubefed-namespace=kube-federation-system | less
+ 1410  kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --kubefed-namespace=kube-federation-system 2>&1 | less
+ 1411  kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --federation-namespace=kube-federation-system 
+ 1412  kubefedctl version
+ 1413  which kubefedctl
+ 1414  ~/bin/kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --kubefed-namespace=kube-federation-system 2>&1 | less
+ 1415  ~/bin/kubefedctl join cluster01 --cluster-context cluster01 --host-cluster-context cluster01 --v=2 --kubefed-namespace=ansible-kubefed-testing 2>&1 | less
+ 1431  rm kubefedctl-0.1.0-rc*
+ 1462  kubefedctl join cluster01 --cluster-context cluster01 --kubefed-namespace=kubefed-tests -v 2
+ 1586  kubefedctl version
+ 1587  kubefedctl join cluster02 --cluster-context cluster02 --host-cluster-context cluster02 --kubefed-namespace=kubefed-tests -v 2
+ 1588  kubefedctl join cluster03 --cluster-context cluster03 --host-cluster-context cluster02 --kubefed-namespace=kubefed-tests -v 2
+ 1597  kubefedctl enable --help
+ 1598  kubefedctl enable --help | less
+ 1599  kubefedctl enable deployment --kubefed-namespace kubefed-tests --dry-run
+ 1600  kubefedctl enable deployments.apps --kubefed-namespace kubefed-tests --dry-run
+ 1601  kubefedctl enable deployments.apps --kubefed-namespace kubefed-tests 
+ 1623  kubefedctl federate namespace kubefed-tests --contents --enable-type --kubefed-namespace kubefed-tests
+ 1728  kubefedctl enable service --kubefed-namespace kubefed-tests 
+ 1823  history | egrep kubefedctl
+ 1825  history | egrep kubefedctl > ~/tests/KUBEFEDCTL.txt

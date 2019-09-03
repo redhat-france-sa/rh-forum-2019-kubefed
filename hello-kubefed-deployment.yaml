@@ -1,0 +1,42 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedDeployment
+metadata:
+  labels:
+    name: hello-openshift
+  name: hello-openshift
+spec:
+  template:
+    metadata:
+      labels:
+        name: hello-openshift
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: hello-openshift
+      template:
+        metadata:
+          labels:
+            app: hello-openshift
+        spec:
+          containers:
+          - name: hello-openshift
+            image: openshift/hello-openshift:latest
+            ports:
+            - containerPort: 8080
+              protocol: TCP
+            env:
+            - name: MY_PODNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_NODENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: RESPONSE
+              value: Hello, I am pod $(MY_PODNAME) on $(MY_NODENAME) !
+  placement:
+    clusters:
+     - name: cluster02
+     - name: cluster03

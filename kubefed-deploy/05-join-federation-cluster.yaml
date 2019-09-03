@@ -1,0 +1,53 @@
+---
+- name: "install k8s operator through ansible module"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    kube:
+      config:
+        path: /home/vagrant/tests/kubeconfig-cluster01-cluster03
+    federation:
+      namespace: kubefed-tests
+      operator:
+        install_state: present
+        context: cluster01
+    cluster2:
+      - { name: cluster01, region: eu-west-3, deploy: true }
+      - { name: cluster03, region: eu-west-1, deploy: true }
+
+  tasks:
+    - name: "Join federation cluster with kubefedctl"
+      command: "kubefedctl join {{ item.name }} --cluster-context {{ item.name }} --host-cluster-context {{ federation.operator.context }} --kubefed-namespace={{ federation.namespace }} -v 2"
+      environment:
+        KUBECONFIG: "{{ kube.config.path }}"
+      loop: "{{ cluster2 }}"
+
+    - name: "Enable Federated types"
+      command: "kubefedctl enable {{ item }} --kubefed-namespace={{ federation.namespace }} --host-cluster-context {{ federation.operator.context }}"
+      environment:
+        KUBECONFIG: "{{ kube.config.path }}"
+      loop:
+        - namespaces
+        - deployments.apps
+        - ingresses.extensions
+        - secrets
+        - serviceaccounts
+        - services
+        - persistentvolumeclaims
+        - configmaps
+        - clusterrolebindings.rbac.authorization.k8s.io
+        - clusterroles.rbac.authorization.k8s.io
+
+    - name: "Enable Federated types"
+      command: "oc label kubefedclusters -n {{ federation.namespace }} {{ item.name }} cluster=available"
+      environment:
+        KUBECONFIG: "{{ kube.config.path }}"
+      loop: "{{ cluster2 }}"
+      when: false
+
+    - name: "Enable Federated types"
+      command: "kubefedctl federate namespace {{ federation.namespace }} --contents --enable-type --kubefed-namespace {{ federation.namespace }}"
+      environment:
+        KUBECONFIG: "{{ kube.config.path }}"
+      when: false

@@ -1,0 +1,24 @@
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedClusterRole
+metadata:
+  name: pacman
+spec:
+  placement:
+    clusterSelector:
+      matchLabels:
+        cluster: available
+  template:
+    metadata:
+      labels:
+        name: pacman
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - pods
+      - nodes
+      verbs:
+      - get
+      - watch
+      - list

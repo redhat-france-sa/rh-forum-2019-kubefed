@@ -1,0 +1,4 @@
+*.sw?
+zboub*
+blu*
+*kubeconfig*

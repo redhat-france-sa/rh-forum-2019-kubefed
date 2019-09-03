@@ -1,0 +1,13 @@
+clusterpropagatedversions                              core.kubefed.io                       false        ClusterPropagatedVersion
+federatedservicestatuses                               core.kubefed.io                       true         FederatedServiceStatus
+federatedtypeconfigs                  ftc              core.kubefed.io                       true         FederatedTypeConfig
+kubefedclusters                                        core.kubefed.io                       true         KubeFedCluster
+kubefedconfigs                                         core.kubefed.io                       true         KubeFedConfig
+propagatedversions                                     core.kubefed.io                       true         PropagatedVersion
+dnsendpoints                                           multiclusterdns.kubefed.io            true         DNSEndpoint
+domains                                                multiclusterdns.kubefed.io            true         Domain
+ingressdnsrecords                                      multiclusterdns.kubefed.io            true         IngressDNSRecord
+servicednsrecords                                      multiclusterdns.kubefed.io            true         ServiceDNSRecord
+kubefeds                                               operator.kubefed.io                   true         KubeFed
+kubefedwebhooks                                        operator.kubefed.io                   true         KubeFedWebHook
+replicaschedulingpreferences                           scheduling.kubefed.io                 true         ReplicaSchedulingPreference

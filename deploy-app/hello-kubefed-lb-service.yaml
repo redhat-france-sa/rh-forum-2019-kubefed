@@ -1,0 +1,24 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedService
+metadata:
+  name: hello-openshift
+  labels:
+    name: hello-openshift
+spec:
+  template:
+    metadata:
+      labels:
+        app: hello-openshift
+    spec:
+      ports:
+      - port: 80
+        protocol: TCP
+        targetPort: 8080
+      selector:
+        app: hello-openshift
+      sessionAffinity: None
+      type: LoadBalancer
+  placement:
+    clusterSelector:
+      matchLabels:
+        cluster: available

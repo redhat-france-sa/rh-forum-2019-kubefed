@@ -1,0 +1,49 @@
+---
+- name: "install k8s operator through ansible module"
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    kube:
+      config:
+        path: zboub
+    federation:
+      namespace: kubefed-tests
+    federated:
+      namespace: kubefed-tests
+      operator:
+        install_state: present
+        context: cluster01
+
+  tasks:
+    - name: "Create KubeFed WebHook for namespace {{ federation.namespace }}"
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        definition:
+          apiVersion: operator.kubefed.io/v1alpha1
+          kind: KubeFedWebHook
+          metadata:
+            name: kubefed-webhook-resource
+            namespace: "{{ federation.namespace }}"
+          spec: null
+      when: federation.operator.install_state == 'present'
+
+#
+# scope can be Namespaced
+#
+    - name: "Create KubeFed Resource for namespace {{ federation.namespace }}"
+      k8s:
+        kubeconfig: "{{ kube.config.path }}"
+        state: "{{ federation.operator.install_state|default(present) }}"
+        context: "{{ federation.operator.context }}"
+        definition:
+          apiVersion: operator.kubefed.io/v1alpha1
+          kind: KubeFed
+          metadata:
+            name: kubefed-resource
+            namespace: "{{ federation.namespace }}"
+          spec:
+            scope: Cluster
+      when: federation.operator.install_state == 'present'

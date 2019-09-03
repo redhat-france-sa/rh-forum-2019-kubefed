@@ -1,0 +1,15 @@
+---
+kube:
+  config:
+    path: /home/vagrant/tests/deploy-mongo/../kubefed-deploy/cluster-kubeconfig
+
+federation:
+      namespace: kubefed-system
+      operator:
+        install_state: present
+        context: cluster01
+
+cluster2:
+  - { name: cluster01, region: eu-west-3, deploy: true }
+  - { name: cluster02, region: eu-central-1, deploy: true }
+  - { name: cluster03, region: eu-west-1, deploy: true }
